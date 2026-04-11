@@ -37,6 +37,11 @@ interactions.
 - `README.md` — product description, three-path install guide, configuration,
   architecture summary, FAQ.
 
+### Fixed
+- `skills/buddy/SKILL.md` — `buddy pet` art now explicitly instructs the agent
+  to wrap the ASCII art in a code block. Backslashes outside code blocks are
+  eaten by markdown rendering, causing a misaligned bullet + broken ears.
+
 ### Known gaps
 - Phase 3 fresh-profile test pending: the canonical contract lives in both
   `CLAUDE.md` (plugin root) and `skills/buddy/SKILL.md` (the skill) — which
