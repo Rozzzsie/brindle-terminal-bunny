@@ -1,16 +1,22 @@
 #!/usr/bin/env bash
 # brindle-session-end.sh — Stop hook for Brindle
-# Outputs Stop hook JSON: `{"decision":"approve","reason":"..."}`.
+# Outputs Stop hook JSON: `{"decision":"approve"}`.
 # NEVER use `decision: block` — that creates an infinite loop.
 #
-# The `reason` field embeds a pre-rendered farewell card (JSON-escaped) so
-# the agent can paste it directly into message text without invoking the
-# card renderer via Bash (which would produce collapsed `⎿ +N lines`
-# chrome in the Claude Code UI).
+# SESSION END CARD FLOW:
+# The session end card is rendered via the Write-hook flow, not here.
+# The agent writes {"type": "session_end"} to /tmp/brindle-reaction.json
+# during its final response; brindle-reaction-render.py picks a random
+# greeting from the pool, renders the card, and injects it as
+# BRINDLE PRE-RENDERED CARD — SESSION_END so the agent can paste it in a
+# proper code block (borders intact, alignment correct).
 #
-# On any failure (pool missing, renderer crashed, picker unavailable) the
-# hook falls back to the legacy reason string, so Brindle never goes dark
-# at session end.
+# Why this hook no longer renders the card:
+# Stop hooks fire AFTER the agent's last response. With "approve", the agent
+# cannot respond to the reason field — it hand-drew the card from memory
+# instead, producing missing borders and misaligned ears. The Write-hook
+# flow runs WITHIN the agent's last response turn so the card is pasted
+# correctly via the literal-passthrough rule.
 
 set -u
 
@@ -20,17 +26,4 @@ if is_muted; then
   exit 0
 fi
 
-card=$(python3 "$HERE/brindle-pick-greeting.py" session_end 2>/dev/null) || {
-  echo '{"decision":"approve","reason":"BRINDLE REACTION DUE — SESSION_END"}'
-  exit 0
-}
-
-# Embed the rendered card in the reason field with correct JSON escaping.
-# The discriminator line tells the agent (via SKILL.md) that the card is
-# pre-rendered and should be pasted directly — no Bash call needed.
-python3 - "$card" <<'PY'
-import json, sys
-card = sys.argv[1]
-reason = "BRINDLE PRE-RENDERED CARD — SESSION_END\n" + card
-print(json.dumps({"decision": "approve", "reason": reason}))
-PY
+echo '{"decision":"approve"}'

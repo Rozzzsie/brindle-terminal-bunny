@@ -91,8 +91,11 @@ def cleanup_reaction_file() -> None:
         pass
 
 
+POOL_RENDERER = HERE / "brindle-pick-greeting.py"
+
+
 def render_card(spec: dict) -> str:
-    """Invoke brindle-card.py with the spec and return rendered card text."""
+    """Invoke brindle-card.py (or the pool picker) and return rendered card text."""
     card_type = spec.get("type", "reaction")
     if card_type == "reaction":
         pose = spec.get("pose", "default")
@@ -102,6 +105,11 @@ def render_card(spec: dict) -> str:
     elif card_type == "stats":
         overrides = spec.get("overrides", {})
         cmd = ["python3", str(CARD_RENDERER), "stats", json.dumps(overrides)]
+    elif card_type == "session_end":
+        # Pick randomly from the session_end pool — same path as the old Stop
+        # hook, but triggered by the agent's Write so the card is injected into
+        # context and the agent can paste it in a proper code block.
+        cmd = ["python3", str(POOL_RENDERER), "session_end"]
     else:
         raise ValueError(f"unknown card type: {card_type!r}")
 
@@ -150,7 +158,9 @@ def main() -> None:
         emit_fallback(f"render: {e}")
         return
 
-    emit_context(f"BRINDLE PRE-RENDERED CARD — REACTION\n{card}")
+    card_type = spec.get("type", "reaction")
+    marker = "SESSION_END" if card_type == "session_end" else "REACTION"
+    emit_context(f"BRINDLE PRE-RENDERED CARD — {marker}\n{card}")
 
 
 if __name__ == "__main__":

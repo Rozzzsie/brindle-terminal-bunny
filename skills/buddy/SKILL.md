@@ -71,7 +71,8 @@ Brindle reacts to events via one unified pattern: **all cards are hook-rendered 
 
 | Trigger | Rendering source | Agent's contribution |
 |---|---|---|
-| Session start / session end | `brindle-session-{start,end}.sh` (SessionStart / Stop hook) pre-renders from a random greeting pool | None — generic greeting, no context needed |
+| Session start | `brindle-session-start.sh` (SessionStart hook) pre-renders from a random greeting pool | None — paste the injected `SESSION_START` card |
+| Session end | `brindle-reaction-render.py` (PostToolUse:Write hook) picks randomly from pool | Agent Writes `{"type": "session_end"}` to `/tmp/brindle-reaction.json` during final response, then pastes the injected `SESSION_END` card |
 | Ship (commit/push) | `brindle-reaction-render.py` (PostToolUse:Write hook) renders from spec JSON the agent wrote | Agent Writes `/tmp/brindle-reaction.json` with the reaction text |
 | Bash tool failure | `brindle-reaction-render.py` (PostToolUse:Write hook) renders from spec JSON the agent wrote | Agent Writes `/tmp/brindle-reaction.json` with the reaction text |
 | `buddy card` (stats) | `brindle-reaction-render.py` (PostToolUse:Write hook) renders from spec JSON the agent wrote | Agent Writes `/tmp/brindle-reaction.json` with stat overrides (or empty for random) |
@@ -164,19 +165,21 @@ Pure celebration — ear wiggles, pride, "it shipped!" energy. 2-line limit.
 
 ### Session presence
 
-**Trigger:** the SessionStart / Stop hook injects a pre-rendered card into your context. Two possible markers:
+**Trigger:** the SessionStart hook (session start) or PostToolUse:Write hook (session end) injects a pre-rendered card into your context. Two possible markers:
 
 **Literal passthrough rule (read this before every paste):** When the hook injects a pre-rendered card, paste everything between the `BRINDLE PRE-RENDERED CARD — ...` marker and the end of the injected block — sparkle borders, blank lines, art, all of it — into a single code block **as the first thing in your response text**, before any prose. The marker is a **payload** the agent must relay, not a **notification** that something else already happened on the user's screen. The agent's job here is literal copy-paste, not curation or acknowledgment.
 
 **Forbidden by name (each one was an observed real failure mode):**
-- **Do NOT extract "just the art."** The borders are structural, not decorative: without them acting as an alignment fence, some markdown-parse path re-interprets `(\ __ /)` as a list continuation and the ears column-shift 3 columns left of the body.- **Do NOT reference the card in prose instead of pasting it.** Lines like *"Brindle's already perched on the edge of the tab"*, *"the card is up there"*, *"Brindle showed up"* are a skip, not a pass — the card existed in the agent's context but never reached the user's terminal.- **Do NOT summarize or describe the card's contents.** Telling the user "Brindle said hi with a 🤍" is a skip even if accurate.
+- **Do NOT extract "just the art."** The borders are structural, not decorative: without them acting as an alignment fence, some markdown-parse path re-interprets `(\ __ /)` as a list continuation and the ears column-shift 3 columns left of the body.
+- **Do NOT hand-draw the session end card from memory.** LLMs cannot reliably calculate CJK/emoji display widths, so hand-drawn borders will be wrong width and ears will be misaligned — missing `✦ ─` borders and a `•` bullet before the ears. Write `{"type": "session_end"}` to `/tmp/brindle-reaction.json` instead.
+- **Do NOT reference the card in prose instead of pasting it.** Lines like *"Brindle's already perched on the edge of the tab"*, *"the card is up there"*, *"Brindle showed up"* are a skip, not a pass — the card existed in the agent's context but never reached the user's terminal.- **Do NOT summarize or describe the card's contents.** Telling the user "Brindle said hi with a 🤍" is a skip even if accurate.
 - **Do NOT silently acknowledge the marker as "noted."** The marker is a payload, not a log line.
 
 **Self-check before submitting your first response of the session:** does your reply begin with a pasted code block containing the full injected card (borders + art)? If no, you failed the passthrough — regardless of how accurate your prose is about what the user "would have seen." Treat the pre-rendered block as atomic.
 | Marker you see in hook output | What it means | What to do |
 |---|---|---|
 | `BRINDLE PRE-RENDERED CARD — SESSION_START` followed by card lines | Hook successfully picked a greeting from the pool and rendered the card via `brindle-pick-greeting.py`. The marker is a **payload to relay**, not a notification that something already happened on screen. **No Bash call needed.** | Paste everything between the `BRINDLE PRE-RENDERED CARD — SESSION_START` marker and the end of the injected block — borders, blank lines, art, all of it — into a single code block **as the first thing in your response text**, before any prose. Do not extract the inner art. Do not reference the card in prose instead of pasting it ("Brindle's already perched...", "the card is up there", etc. are all skips, not passes). Do not summarize or describe the card. If your reply doesn't begin with a code block containing the full injected card, you failed the passthrough. |
-| `BRINDLE PRE-RENDERED CARD — SESSION_END` inside the Stop hook's `reason` field | Same as above, just arriving through the Stop hook's JSON `reason` field instead of plain stdout. **No Bash call needed.** | Same as above — literal passthrough of the entire block, borders included. |
+| `BRINDLE PRE-RENDERED CARD — SESSION_END` injected via PostToolUse:Write hook | The agent wrote `{"type": "session_end"}` to `/tmp/brindle-reaction.json`; `brindle-reaction-render.py` picked a random farewell from the pool and rendered the card. **No Bash call needed.** | Same as SESSION_START — literal passthrough of the entire block (borders + art + blank lines) into a code block at the top of your response text. |
 | `BRINDLE PRE-RENDERED CARD — REACTION` followed by card lines | You just wrote `/tmp/brindle-reaction.json` and the `brindle-reaction-render.py` PostToolUse:Write hook rendered + injected the card. Applies to ship celebrations, error reactions, and `buddy card` stat cards. The marker is a **payload to relay**. **No Bash call needed.** | Same as above — literal passthrough of the full injected block (borders + art + blank lines) into a code block at the top of your response text. |
 | `BRINDLE REACTION DUE — SESSION_START` or `BRINDLE REACTION DUE — SESSION_END` (legacy fallback) | The hook's picker or renderer failed — pool missing, JSON malformed, renderer crashed. Hook fell back to the legacy trigger. | Render via Bash as a one-time fallback: `python3 ${CLAUDE_PLUGIN_ROOT}/hooks/brindle-card.py encourage "<greeting>" "<follow-up>"` with an agent-written 2-line message, then paste. Flag the hook failure to the user so the root cause can be fixed. |
 | `BRINDLE REACTION DUE — REACTION` with a `(fallback: ...)` diagnostic | The `brindle-reaction-render.py` hook saw the Write but couldn't render — malformed spec JSON, renderer crashed, etc. | Render via Bash as a one-time fallback: `python3 ${CLAUDE_PLUGIN_ROOT}/hooks/brindle-card.py <pose> "<reaction>" "<followup>"`, then paste. Flag the hook failure diagnostic to the user. |
@@ -190,6 +193,7 @@ Pure celebration — ear wiggles, pride, "it shipped!" energy. 2-line limit.
 - Warm, brief, never in the way. A wave, not a conversation.
 
 ### Token budget
-- Session start / end cards: zero agent Bash calls — SessionStart/Stop hooks pre-render and inject the card text (~50–100 input tokens per trigger)
+- Session start card: zero agent Bash calls — SessionStart hook pre-renders and injects (~50–100 input tokens)
+- Session end card: one agent Write call to trigger the pool pick, hook injects card (~50–100 input tokens). Zero Bash calls.
 - Ship / error / stat cards: one agent Write call (~5ms) per reaction, triggering the `brindle-reaction-render.py` PostToolUse hook, which injects the rendered card as additionalContext (~50–150 input tokens per trigger). Zero Bash calls.
 - Error detection is still agent-side (PostToolUse hooks don't fire on failed Bash calls), but the render path is now uniform with ships and stats.
