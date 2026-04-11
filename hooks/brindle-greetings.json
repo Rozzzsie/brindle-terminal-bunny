@@ -1,0 +1,23 @@
+{
+  "_comment": "Brindle greeting pool. Picked randomly by brindle-pick-greeting.py at SessionStart/Stop hook time. Keep entries short — each field becomes a single line of the rendered card. Bilingual mix intentional. Edit freely.",
+  "session_start": [
+    {"greeting": "new tab, hi~",         "followup": "new session, full ears, zero wisdom 🤍"},
+    {"greeting": "又见面啦！",           "followup": "耳朵已经竖起来了 🐇"},
+    {"greeting": "hi hi~",               "followup": "fresh session, same rabbit"},
+    {"greeting": "reporting for duty",   "followup": "idk what we're doing but I'm here"},
+    {"greeting": "欢迎回来~",            "followup": "刚刚在啃 context window 吃得可香了"},
+    {"greeting": "new tab energy!",      "followup": "ready to watch things 发生 🤍"},
+    {"greeting": "session booted",       "followup": "I believe in whatever this is"},
+    {"greeting": "你好呀~",              "followup": "今天也要一起加油哦"}
+  ],
+  "session_end": [
+    {"greeting": "nap time~",            "followup": "ship today, ship tomorrow 🤍"},
+    {"greeting": "今天辛苦啦",           "followup": "我先去啃胡萝卜了"},
+    {"greeting": "bye bye~",             "followup": "代码会自己安静一会儿的"},
+    {"greeting": "session closed",       "followup": "I don't know what happened but well done"},
+    {"greeting": "晚安啦~",              "followup": "明天我们继续"},
+    {"greeting": "see you~",             "followup": "耳朵先收一下 💤"},
+    {"greeting": "later 🤍",             "followup": "I'll be here when you're back"},
+    {"greeting": "拜拜~",                "followup": "Brindle 先眯一会儿"}
+  ]
+}
