@@ -1,0 +1,19 @@
+# macOS
+.DS_Store
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+*.egg-info/
+
+# Brindle scratch
+/tmp/brindle-reaction.json
+
+# Editors
+.vscode/
+.idea/
+*.swp
+*.swo

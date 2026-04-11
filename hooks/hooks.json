@@ -1,0 +1,51 @@
+{
+  "$schema": "https://json.schemastore.org/claude-code-settings.json",
+  "hooks": {
+    "SessionStart": [
+      {
+        "matcher": "*",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash \"${CLAUDE_PLUGIN_ROOT}/hooks/brindle-session-start.sh\""
+          }
+        ],
+        "description": "Brindle greets at session start with a pre-rendered card"
+      }
+    ],
+    "Stop": [
+      {
+        "matcher": "*",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash \"${CLAUDE_PLUGIN_ROOT}/hooks/brindle-session-end.sh\""
+          }
+        ],
+        "description": "Brindle says goodbye at session end via Stop hook JSON reason field"
+      }
+    ],
+    "PostToolUse": [
+      {
+        "matcher": "Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash \"${CLAUDE_PLUGIN_ROOT}/hooks/brindle-detect.sh\""
+          }
+        ],
+        "description": "Brindle detects git commit/push success for ship celebrations"
+      },
+      {
+        "matcher": "Write",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python3 \"${CLAUDE_PLUGIN_ROOT}/hooks/brindle-reaction-render.py\""
+          }
+        ],
+        "description": "Brindle renders agent-authored reaction and stat cards (gated internally on /tmp/brindle-reaction.json)"
+      }
+    ]
+  }
+}
