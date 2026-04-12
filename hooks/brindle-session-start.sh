@@ -37,7 +37,7 @@ Spec: {"type":"reaction","pose":"POSE","reaction":"line","followup":"line"}
 Poses: surprise, sympathy, side-eye, encourage, celebrate, default
 
 For session end — Write-hook flow:
-When the session is winding down (user says goodbye, /exit, or conversation is ending),
+When the user says goodbye, thanks you, or the conversation is clearly winding down,
 write {"type":"session_end"} to /tmp/brindle-reaction.json via the Write tool BEFORE
 your final response. The hook renders the farewell card; paste it per the passthrough rule.
 

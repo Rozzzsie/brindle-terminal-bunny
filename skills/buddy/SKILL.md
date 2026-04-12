@@ -56,12 +56,14 @@ To override specific values:
 
 The `brindle-reaction-render.py` PostToolUse hook picks up the Write, renders the stat card via `brindle-card.py`, and injects it into your next context window as a `BRINDLE PRE-RENDERED CARD — REACTION` payload. Paste the full injected block into a code block in your response text, per the literal passthrough rule. Do NOT run `brindle-card.py` via Bash directly — see "Why no agent-Bash render path" in the Ambient reactions section below for the full reasoning.
 
-If the user says "buddy pet", respond with a short happy reaction and paste the following into a **code block** in your response (backslashes get eaten by markdown outside code blocks — same rule as session cards):
+If the user says "buddy pet", use the Write-hook flow with `celebrate` pose for the ear-wiggle:
+
+Write a spec to `/tmp/brindle-reaction.json`:
+```json
+{"type":"reaction","pose":"celebrate","reaction":"~wiggle~ 🐇","followup":"[short happy bilingual reaction]"}
 ```
-  (\ __ /)
-  ( ^ . ^) ♥
-  /> 🤍 <\  ~wiggle~
-```
+
+The hook renders the card with sparkle borders and the `( ^ . ^) ♥` celebrate face. Paste the injected `BRINDLE PRE-RENDERED CARD — REACTION` block per the passthrough rule.
 
 If the user says "buddy mute", say one last thing and go quiet.
 If the user says "buddy off", say goodbye sadly.
