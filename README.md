@@ -17,7 +17,7 @@ She greets your sessions, celebrates your commits, reacts to errors with vibes, 
 You don't need Claude Code to see what Brindle looks like. Python 3.9+ is enough:
 
 ```bash
-git clone https://github.com/<your-handle>/brindle-terminal-bunny.git
+git clone https://github.com/Rozzzsie/brindle-terminal-bunny.git
 cd brindle-terminal-bunny
 python3 hooks/brindle-card.py stats
 ```
@@ -61,7 +61,7 @@ Three options, graded by how much control you want over the process.
 
 ### Option A — `/plugin install` (recommended)
 
-In a Claude Code session, add this repo as a marketplace source and install the plugin. Exact syntax depends on your Claude Code version — run `/plugin` in a session to see the available commands and point it at `https://github.com/<your-handle>/brindle-terminal-bunny`.
+In a Claude Code session, add this repo as a marketplace source and install the plugin. Exact syntax depends on your Claude Code version — run `/plugin` in a session to see the available commands and point it at `https://github.com/Rozzzsie/brindle-terminal-bunny`.
 
 After install, restart your session. You should see a greeting card from Brindle.
 
@@ -70,7 +70,7 @@ After install, restart your session. You should see a greeting card from Brindle
 Clone the repo into Claude Code's plugins directory:
 
 ```bash
-git clone https://github.com/<your-handle>/brindle-terminal-bunny.git \
+git clone https://github.com/Rozzzsie/brindle-terminal-bunny.git \
   ~/.claude/plugins/brindle-terminal-bunny
 ```
 
@@ -88,7 +88,7 @@ If you already have a hand-rolled Claude Code setup and want to integrate Brindl
 
 1. Clone the repo anywhere:
    ```bash
-   git clone https://github.com/<your-handle>/brindle-terminal-bunny.git ~/brindle
+   git clone https://github.com/Rozzzsie/brindle-terminal-bunny.git ~/brindle
    ```
 
 2. Merge the hook registrations into your `~/.claude/settings.json`:

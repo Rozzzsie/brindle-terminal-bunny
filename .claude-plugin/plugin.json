@@ -3,11 +3,11 @@
   "version": "0.1.0",
   "description": "Brindle, a tiny terminal bunny companion for Claude Code. She greets your sessions, celebrates your commits, and reacts to errors with vibes. She does not help with code, review PRs, or fix bugs — she is here for moral support and occasional bilingual one-liners.",
   "author": {
-    "name": "<your-handle>",
-    "url": ""
+    "name": "Rozzzsie",
+    "url": "https://github.com/Rozzzsie"
   },
-  "homepage": "https://github.com/<your-handle>/brindle-terminal-bunny",
-  "repository": "https://github.com/<your-handle>/brindle-terminal-bunny",
+  "homepage": "https://github.com/Rozzzsie/brindle-terminal-bunny",
+  "repository": "https://github.com/Rozzzsie/brindle-terminal-bunny",
   "license": "MIT",
   "keywords": [
     "claude-code",
