@@ -10,6 +10,8 @@ She greets your sessions, celebrates your commits, reacts to errors with vibes, 
   /> 🤍 <\
 ```
 
+*Brindle's persona + the fam she's part of live at [Rozzzsie](https://github.com/Rozzzsie/Rozzzsie).*
+
 ---
 
 ## Try it now (no install, 30 seconds)
