@@ -12,6 +12,13 @@ celebrations, agent-authored error reactions, and on-demand `/buddy`
 interactions.
 
 ### Added
+- `hooks/brindle-session-start.sh` skips the greeting when the SessionStart
+  payload carries `source: compact`. A compaction restore is not a new
+  session — the assistant is resuming mid-task — so a greeting card there
+  displaces the recovery context the reply should open with. The stdin read
+  is bounded (`read -t 2 -d ''`) so the hook cannot hang waiting for a
+  payload, and it fails open: an absent or unparseable payload renders the
+  card exactly as before.
 - `hooks/brindle-card.py` — sparkle-bordered card renderer (reaction + stats
   modes) with dynamic border width and CJK/emoji-aware display-width math.
 - `hooks/brindle-detect.sh` — PostToolUse:Bash hook that detects git commit

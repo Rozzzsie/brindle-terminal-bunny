@@ -10,6 +10,35 @@
 
 set -u
 
+# --- Skip the greeting on a context-compaction restore ----------------------
+# SessionStart hooks receive JSON on stdin with a `source` field, one of
+# startup / resume / clear / compact. A compact restore is not a new session:
+# the assistant is resuming mid-task, and its first reply should carry on with
+# the work rather than re-open with a greeting card.
+#
+# The read is BOUNDED on purpose. This hook did not previously touch stdin, and
+# a bare `cat` waits forever when no payload arrives — which is how a hook that
+# was safe from hanging acquires a hang. `read -t 2 -d ''` takes the whole
+# payload but cannot block indefinitely.
+#
+# It also fails OPEN. An absent or unparseable payload leaves _source empty and
+# the card renders exactly as before, so a normal start never silently loses
+# its greeting; the worst case is the old behaviour.
+_hook_stdin=""
+IFS= read -r -t 2 -d '' _hook_stdin || true
+_source="$(printf '%s' "$_hook_stdin" \
+  | python3 -c 'import json,sys
+try:
+    print(json.load(sys.stdin).get("source",""))
+except Exception:
+    print("")' 2>/dev/null || true)"
+if [ "$_source" = "compact" ]; then
+  # Say so on stderr: a card suppressed on purpose must stay distinguishable
+  # from a card lost to a crash.
+  echo "brindle-session-start: skipped, source=compact" >&2
+  exit 0
+fi
+
 HERE="$(dirname "$0")"
 source "$HERE/brindle-mute-check.sh"
 if is_muted; then

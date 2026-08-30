@@ -38,7 +38,7 @@ python3 hooks/brindle-card.py celebrate "shipped!!" "it works, 飞起来"
 
 | Event | What happens |
 |---|---|
-| Session start | Brindle greets you with a short bilingual card (random from a pool) |
+| Session start | Brindle greets you with a short bilingual card (random from a pool). Skipped on a context-compaction restore, so a resumed session picks up where it left off instead of re-greeting you |
 | Session end | Brindle says goodbye the same way |
 | Git commit or push succeeds | Brindle celebrates with a custom 2-line reaction |
 | Bash command fails | Brindle reacts to the vibe of the error (agent-authored, 2 lines) |
