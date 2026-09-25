@@ -11,7 +11,21 @@ First release. Ambient companion for Claude Code: session greetings, ship
 celebrations, agent-authored error reactions, and on-demand `/buddy`
 interactions.
 
+### Fixed
+- `hooks/brindle-detect.sh` no longer celebrates ships that did not happen.
+  It used to fire on any output line shaped like `[word hex]` or any arrow on
+  stderr, whatever command ran — so a test runner's `[ok  3]` or a wrapper's
+  `[exited with code 0]` could raise a SHIP card. It now requires the command
+  itself to run `git commit` or `git push`, then checks the output: a commit
+  summary with a 7–64 hex hash, or a ref line to `main`, `master` or
+  `claude/*` that is not rejected, deleted, or a `--dry-run`. It also reads
+  stdout as well as stderr, so `git push 2>&1` is now detected. Known limits
+  are listed in the hook's header.
+
 ### Added
+- `tests/test-brindle-detect-ship.sh` — 30 cases for the ship detector
+  (real ships that must fire, look-alikes that must stay silent, and mute).
+  Run `bash tests/test-brindle-detect-ship.sh`; needs `jq`.
 - `hooks/brindle-session-start.sh` skips the greeting when the SessionStart
   payload carries `source: compact`. A compaction restore is not a new
   session — the assistant is resuming mid-task — so a greeting card there
